@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                 val bundle = intent.extras
                 if (bundle != null) {
                     val pdus = bundle["pdus"] as Array<*>?
-                    val messages: Array<SmsMessage?> = arrayOfNulls<SmsMessage>(pdus!!.size)
+                    val messages: Array<SmsMessage?> = arrayOfNulls(pdus!!.size)
                     for (i in pdus.indices) {
                         messages[i] = SmsMessage.createFromPdu(pdus[i] as ByteArray)
                     }
