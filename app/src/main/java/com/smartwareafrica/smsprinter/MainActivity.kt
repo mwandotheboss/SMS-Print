@@ -8,11 +8,12 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.telephony.SmsMessage
 import android.util.Log
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Placeholder
-import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.mazenrashed.printooth.Printooth
+import com.mazenrashed.printooth.data.printable.ImagePrintable
 import com.mazenrashed.printooth.data.printable.Printable
 import com.mazenrashed.printooth.data.printable.RawPrintable
 import com.mazenrashed.printooth.data.printable.TextPrintable
@@ -88,34 +89,39 @@ class MainActivity : AppCompatActivity(), PrintingCallback {
         printableText.add(RawPrintable.Builder(byteArrayOf(27, 100, 4)).build())
 
         // Add text
-        printableText.add(TextPrintable.Builder()
-            .setText("Hello printing: this is the test service")
-            .setCharacterCode(DefaultPrinter.CHARCODE_PC1252)
-            .setNewLinesAfter(1)
-            .build())
+        printableText.add(
+            TextPrintable.Builder()
+                .setText("Hello printing: this is the test service")
+                .setCharacterCode(DefaultPrinter.CHARCODE_PC1252)
+                .setNewLinesAfter(1)
+                .build()
+        )
 
         //Custom text
-        printableText.add(TextPrintable.Builder()
-            .setText("Hello Mwando")
-            .setLineSpacing(DefaultPrinter.LINE_SPACING_60)
-            .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
-            .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
-            .setUnderlined(DefaultPrinter.UNDERLINED_MODE_ON)
-            .setNewLinesAfter(1)
-            .build())
+        printableText.add(
+            TextPrintable.Builder()
+                .setText("Hello Mwando")
+                .setLineSpacing(DefaultPrinter.LINE_SPACING_60)
+                .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
+                .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
+                .setUnderlined(DefaultPrinter.UNDERLINED_MODE_ON)
+                .setNewLinesAfter(1)
+                .build()
+        )
 
         printing!!.print(printableText)
     }
 
     private fun printImage() {
-        val imageURL = "https://firebasestorage.googleapis.com/v0/b/smartware-africa.appspot.com/o/Website%20Resources%2FSmartware-africa-logo-official.jpg?alt=media&token=03af99ae-6f26-4c36-b376-45305ad02b4e"
+        val imageURL =
+            "https://firebasestorage.googleapis.com/v0/b/smartware-africa.appspot.com/o/Website%20Resources%2FSmartware-africa-logo-official.jpg?alt=media&token=03af99ae-6f26-4c36-b376-45305ad02b4e"
         val printableImage = ArrayList<Printable>()
         //Load bitmap from Internet
 
         Picasso.get().load(imageURL)
             .into(object : com.squareup.picasso.Target {
                 override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                    printableImage.add(bitmap!!)
+                    printableImage.add(ImagePrintable.Builder(bitmap!!).build())
                     printing?.print(printableImage)
                 }
 
@@ -129,8 +135,6 @@ class MainActivity : AppCompatActivity(), PrintingCallback {
 
             })
 
-//        Glide.with(this).load(imageURL)
-//            .into(printableImage.add(bitmap!!))
     }
 
 
@@ -138,17 +142,18 @@ class MainActivity : AppCompatActivity(), PrintingCallback {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER &&
-                resultCode == RESULT_OK)
-
-                    startPrinting()
+            resultCode == RESULT_OK
+        )
+            startPrinting()
 
         changePairAndUnpair()
     }
 
-
-
     private fun startPrinting() {
-
+        if (Printooth.hasPairedPrinter())
+            printing = Printooth.printer()
+        if (printing != null)
+            printing!!.printingCallback = this
     }
 
     private fun changePairAndUnpair() {
@@ -159,23 +164,23 @@ class MainActivity : AppCompatActivity(), PrintingCallback {
     }
 
     override fun connectingWithPrinter() {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Connecting to Printer", LENGTH_SHORT).show()
     }
 
     override fun connectionFailed(error: String) {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Failed: $error", LENGTH_SHORT).show()
     }
 
     override fun onError(error: String) {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Error: $error", LENGTH_SHORT).show()
     }
 
     override fun onMessage(message: String) {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Message: $message", LENGTH_SHORT).show()
     }
 
     override fun printingOrderSentSuccessfully() {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Printing...", LENGTH_SHORT).show()
     }
 
 
