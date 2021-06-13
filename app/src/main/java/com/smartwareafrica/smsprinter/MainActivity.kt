@@ -3,10 +3,13 @@ package com.smartwareafrica.smsprinter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.telephony.SmsMessage
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.Placeholder
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.mazenrashed.printooth.Printooth
@@ -17,6 +20,8 @@ import com.mazenrashed.printooth.data.printer.DefaultPrinter
 import com.mazenrashed.printooth.ui.ScanningActivity
 import com.mazenrashed.printooth.utilities.Printing
 import com.mazenrashed.printooth.utilities.PrintingCallback
+import com.squareup.picasso.Picasso
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity(), PrintingCallback {
@@ -106,17 +111,52 @@ class MainActivity : AppCompatActivity(), PrintingCallback {
         val imageURL = "https://firebasestorage.googleapis.com/v0/b/smartware-africa.appspot.com/o/Website%20Resources%2FSmartware-africa-logo-official.jpg?alt=media&token=03af99ae-6f26-4c36-b376-45305ad02b4e"
         val printableImage = ArrayList<Printable>()
         //Load bitmap from Internet
+
+        Picasso.get().load(imageURL)
+            .into(object : com.squareup.picasso.Target {
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                    printableImage.add(bitmap!!)
+                    printing?.print(printableImage)
+                }
+
+                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+
 //        Glide.with(this).load(imageURL)
 //            .into(printableImage.add(bitmap!!))
     }
 
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == ScanningActivity.SCANNING_FOR_PRINTER &&
+                resultCode == RESULT_OK)
+
+                    startPrinting()
+
+        changePairAndUnpair()
+    }
+
+
+
+    private fun startPrinting() {
+
+    }
+
     private fun changePairAndUnpair() {
         if (Printooth.hasPairedPrinter())
-            bluetoothPairButton?.text = "Unpair ${Printooth.getPairedPrinter()?.name}"
+            bluetoothPairButton?.text = "Unpair ${Printooth.getPairedPrinter()!!.name}"
         else
             bluetoothPairButton?.text = "Pair with printer"
     }
-
 
     override fun connectingWithPrinter() {
         TODO("Not yet implemented")
